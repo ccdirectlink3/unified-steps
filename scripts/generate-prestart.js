@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const babel = require('@babel/core');
 
-const modBasePath = path.join(process.cwd(), 'unified-steps/');
+const modBasePath = path.dirname(__dirname);
 const jsPath = path.join(modBasePath, 'js/');
 
 // extract all files in the js directory
@@ -69,7 +69,7 @@ for (const file of files) {
 	nameMap.set(name, dependencies || []);
 }
 
-// extract all keys 
+// extract all keys
 
 let modulePairs = [...nameMap].sort((e, f) => e[1].length - f[1].length);
 let withDependecies = modulePairs.filter(e => e[1].length);
@@ -87,7 +87,7 @@ do {
 	withDependecies = withDependecies.filter(e => e[1].length > 0);
 
 	// newList must be non zero to
-	// prevent an infinite loop 
+	// prevent an infinite loop
 	if (newList.length === 0 && withDependecies.length > 0) {
 		console.log(withDependecies);
 		throw Error('Circular dependency detected.');
@@ -95,10 +95,10 @@ do {
 	modulePairs.push(...newList);
 } while (withDependecies.length);
 
-// generate 
+// generate
 
 function convertToImport(moduleName) {
-	return `import "./js/${moduleName.replace(/\./g, "/")}.js";`;
+	return `import "./js/${moduleName.replace(/\./g, "/")}.js";\n`;
 }
 
-fs.writeFileSync(path.join(modBasePath, 'prestart.js'), modulePairs.map(convertToImport).join('\n\n'));
+fs.writeFileSync(path.join(modBasePath, 'prestart.js'), modulePairs.map(convertToImport).join(''));
